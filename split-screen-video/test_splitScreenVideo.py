@@ -216,5 +216,35 @@ class TestNext(unittest.TestCase):
         self.assertEqual(i1, len(ordered1))
         self.assertEqual(i2, len(ordered2))
 
+    def test_10(self):
+        ordered1 = [1, 2,    4, 5]
+        ordered2 = [1,    3, 4   ]
+
+        i1 = i2 = -1
+        i1, i2 = next(ordered1, i1, ordered2, i2)
+        self.assertEqual(i1, 0)
+        self.assertEqual(i2, 0)
+        
+        i1, i2 = next(ordered1, i1, ordered2, i2)
+        self.assertEqual(i1, 1)
+        self.assertEqual(i2, 0)
+        
+        i1, i2 = next(ordered1, i1, ordered2, i2)
+        # Repeat ordered1's "2" in place of the dropped "3".
+        self.assertEqual(i1, 1)
+        self.assertEqual(i2, 1)
+
+        i1, i2 = next(ordered1, i1, ordered2, i2)
+        self.assertEqual(i1, 2)
+        self.assertEqual(i2, 2)
+
+        i1, i2 = next(ordered1, i1, ordered2, i2)
+        self.assertEqual(i1, 3)
+        self.assertEqual(i2, 2)
+
+        i1, i2 = next(ordered1, i1, ordered2, i2)
+        self.assertEqual(i1, len(ordered1))
+        self.assertEqual(i2, len(ordered2))
+
 if __name__ == "__main__":
     unittest.main()

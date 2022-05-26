@@ -87,14 +87,23 @@ def next(ordered1, i1, ordered2, i2):
         # Have finished ordered2.
         return (i1 + 1, i2)
     elif ordered1[i1 + 1] == ordered2[i2 + 1]:
+        # The two sequences match, and so they advance in tandem.
         return (i1 + 1, i2 + 1)
     else:
+        # One sequence has a gap, so advance the other.
         d1 = ordered1[i1 + 1] - ordered1[i1]
         d2 = ordered2[i2 + 1] - ordered2[i2]
         if d1 > 0 and d1 < d2:
-            return (i1 + 1, i2)
+            # Handle dropped frames.
+            i = 1
+            while i2 + i < len(ordered2) and ordered2[i2 + i] < ordered1[i1 + 1]:
+                i += 1
+            return (i1 + 1, i2 + i - 1)
         else:
-            return (i1, i2 + 1)
+            i = 1
+            while i1 + i < len(ordered1) and ordered1[i1 + i] < ordered2[i2 + 1]:
+                i += 1
+            return (i1 + i - 1, i2 + 1)
 
 
 def paste(im_dest, height, path, top):
@@ -122,7 +131,6 @@ def combine(ordered1, ordered2, top_height_frac, output_size, output_dir, fps, f
 
     i1 = i2 = -1
     while True:
-
         i1, i2 = next(frames1, i1, frames2, i2)
         if i1 == len(frames1) and i2 == len(frames2):
             break
@@ -139,10 +147,10 @@ def combine(ordered1, ordered2, top_height_frac, output_size, output_dir, fps, f
         i = max(i1, i2)
         if frames_only:
             f = os.path.join(output_dir, "{:05d}.png".format(i))
-            print("Writing {}".format(f))
+            print("Combining {} and {} and writing as {}".format(ordered1[i1], ordered2[i2], f))
             im.save(f)
         else:
-            print("Adding frame {}".format(i + 1))
+            print("Combining {} and {} as video frame {}".format(ordered1[i1], ordered2[i2], i + 1))
             writer.write(cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR))
 
     if not frames_only:
